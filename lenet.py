@@ -39,7 +39,7 @@ print("Updated Image Shape: {}".format(X_train.get_shape()))
 X_train, y_train = shuffle(X_train, y_train)
 
 # Parameters
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.001
 EPOCHS = 10
 BATCH_SIZE = 128
 
@@ -77,7 +77,7 @@ weights_lenet = {
 biases_lenet = {
     'bc1': tf.Variable(tf.random_normal([6])), # tf.zeros(6)
     'bc2': tf.Variable(tf.random_normal([16])), # tf.zeros(16)
-    'bd1': tf.Variable(tf.random_normal([120])), # tf.zeros(1024)
+    'bd1': tf.Variable(tf.random_normal([120])), # tf.zeros(120)
     'bd2': tf.Variable(tf.random_normal([84])), # tf.zeros(84)
     'out': tf.Variable(tf.random_normal([n_classes]))} # tf.zeros(n_classes)
 
