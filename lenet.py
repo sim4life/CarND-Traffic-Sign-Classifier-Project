@@ -71,7 +71,7 @@ logits = conv_net(x, weights, biases, keep_prob)
 # Define loss and optimizer - cost is also loss_op, optimizer is also train_op
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y))
 # opt = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
-opt = tf.train.AdamOptimizer()
+opt = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 optimizer = opt.minimize(cost)
 
 # Accuracy - accuracy is also accuracy_op
