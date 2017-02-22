@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import tensorflow as tf
 from sklearn.utils import shuffle
 from tensorflow.contrib.layers import flatten
@@ -19,16 +20,22 @@ print()
 print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_validation)))
 print("Test Set:       {} samples".format(len(X_test)))
+
+
+# Pad images with 0s
+X_train      = np.pad(X_train, ((0,0),(2,2),(2,2),(0,0)), 'constant')
+X_validation = np.pad(X_validation, ((0,0),(2,2),(2,2),(0,0)), 'constant')
+X_test       = np.pad(X_test, ((0,0),(2,2),(2,2),(0,0)), 'constant')
+
+print("Updated Image Shape: {}".format(X_train[0].shape))
 '''
 # Pad images with 0s
 X_train = tf.pad(X_train, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
 X_validation = tf.pad(X_validation, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
 X_test = tf.pad(X_test, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
 
-print("Updated Image Shape: {}".format(X_train[0].shape))
+print("Updated Image Shape: {}".format(X_train.get_shape()))
 '''
-
-
 X_train, y_train = shuffle(X_train, y_train)
 
 # Parameters
@@ -48,7 +55,7 @@ dropout = 0.75  # Dropout, probability to keep units
 # Store layers weight & bias
 weights = {
     'wc1': tf.Variable(tf.random_normal([5, 5, 1, 32])),
-    'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64])),
+    'wc2': tf.Variable(tf.random_normal([1, 1, 32, 64])),
     'wd1': tf.Variable(tf.random_normal([7*7*64, 1024])),
     'out': tf.Variable(tf.random_normal([1024, n_classes]))}
 
@@ -60,24 +67,29 @@ biases = {
 
 
 def conv2d(x, W, b, strides=1):
-    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='SAME')
+    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
     x = tf.nn.bias_add(x, b)
     return tf.nn.relu(x)
 
 def maxpool2d(x, k=2):
-    return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1], padding='SAME')
+    return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1], padding='VALID')
 
 def conv_net(x, weights, biases, dropout):
     # Layer 1 - 28*28*1 to 14*14*32
+    # conv1 = conv2d(x, weights['wc1'], biases['bc1'])
+    # Layer 1 - 32*32*1 to 14*14*32
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
+    # print("conv1 shape is: {}".format(conv1.get_shape()))
     conv1 = maxpool2d(conv1, k=2)
-
+    # print("mac_pool conv1 shape is: {}".format(conv1.get_shape()))
     # Layer 2 - 14*14*32 to 7*7*64
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
+    # print("conv2 shape is: {}".format(conv2.get_shape()))
     conv2 = maxpool2d(conv2, k=2)
 
     # Fully connected layer - 7*7*64 to 1024
     # fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
+    # print("max_pool conv2 shape is: {}".format(conv2.get_shape()))
     fc1 = flatten(conv2)
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
@@ -88,7 +100,7 @@ def conv_net(x, weights, biases, dropout):
     return out
 
 # tf Graph input
-x = tf.placeholder(tf.float32, [None, 28, 28, 1])
+x = tf.placeholder(tf.float32, [None, 32, 32, 1])
 # y = tf.placeholder(tf.float32, [None, n_classes])
 y = tf.placeholder(tf.int32, [None])
 one_hot_y = tf.one_hot(y, n_classes)
@@ -100,14 +112,16 @@ logits = conv_net(x, weights, biases, keep_prob)
 # Define loss (cost) and optimizer (training_operation)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
 # optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+# model_save_dir = 'TRAINED_model_sgd'
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+model_save_dir = 'TRAINED_model_adam'
 training_operation = optimizer.minimize(cost)
 
 # Accuracy (accuracy_operation)
 correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_op = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-model_save_dir = 'TRAINED_model_adam'
+
 if not os.path.exists(model_save_dir):
     os.makedirs(model_save_dir)
 
@@ -202,4 +216,4 @@ def evaluate_test_data():
         print("Test Accuracy = {:.3f}".format(test_accuracy))
 
 # train_model()
-evaluate_test_data()
+# evaluate_test_data()
