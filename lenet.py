@@ -113,11 +113,11 @@ with tf.Session() as sess:
                 y: mnist.validation.labels[:test_valid_size],
                 keep_prob: 1.})
 
-            print('Epoch {:>2}, Batch {:>3} - Loss: {:>10.4f} Validation Accuracy: {:.6f}'.format(
-                epoch + 1,
-                batch + 1,
-                loss,
-                valid_acc))
+            # print('Epoch {:>2}, Batch {:>3} - Loss: {:>10.4f} Validation Accuracy: {:.6f}'.format(
+            #     epoch + 1,
+            #     batch + 1,
+            #     loss,
+            #     valid_acc))
 
         val_loss, val_acc = eval_data(mnist.validation)
         print("EPOCH {} ...".format(epoch+1))
