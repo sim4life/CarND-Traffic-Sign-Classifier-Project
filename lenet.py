@@ -101,15 +101,15 @@ logits = conv_net(x, weights, biases, keep_prob)
 
 # Define loss (cost) and optimizer (training_operation)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
-# optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
-optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+# optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 training_operation = optimizer.minimize(cost)
 
 # Accuracy (accuracy_operation)
 correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_op = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-model_save_dir = 'TRAINED_model'
+model_save_dir = 'TRAINED_model_sgd'
 if not os.path.exists(model_save_dir):
     os.makedirs(model_save_dir)
 
@@ -194,6 +194,7 @@ def train_model():
         saver.save(sess, model_save_dir+'/lenet_wip')
         print("Model saved")
 
+
 def evaluate_test_data():
     with tf.Session() as sess:
         saver.restore(sess, tf.train.latest_checkpoint('TRAINED_model/'))
@@ -202,4 +203,5 @@ def evaluate_test_data():
         print("Test Loss = {:.3f}".format(test_loss))
         print("Test Accuracy = {:.3f}".format(test_accuracy))
 
+train_model()
 evaluate_test_data()
