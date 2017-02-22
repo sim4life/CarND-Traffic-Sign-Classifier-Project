@@ -88,7 +88,7 @@ def eval_data(dataset):
     sess = tf.get_default_session()
     for step in range(steps_per_epoch):
         batch_x, batch_y = dataset.next_batch(BATCH_SIZE)
-        loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y})
+        loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y, keep_prob:1.})
         total_acc += (acc * batch_x.shape[0])
         total_loss += (loss * batch_x.shape[0])
     return total_loss/num_examples, total_acc/num_examples
@@ -120,7 +120,7 @@ with tf.Session() as sess:
                 valid_acc))
 
         val_loss, val_acc = eval_data(mnist.validation)
-        print("EPOCH {} ...".format(i+1))
+        print("EPOCH {} ...".format(epoch+1))
         print("Validation loss = {:.3f}".format(val_loss))
         print("Validation accuracy = {:.3f}".format(val_acc))
         print()
