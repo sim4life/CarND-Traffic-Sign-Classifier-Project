@@ -103,7 +103,7 @@ training_operation = optimizer.minimize(cost)
 
 # Accuracy (accuracy_operation)
 correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+accuracy_op = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 saver = tf.train.Saver()
 
@@ -114,7 +114,7 @@ def evaluate_data(X_data, y_data):
     for offset in range(0, num_examples, BATCH_SIZE):
         batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
         # cost is loss_operation
-        loss, accuracy = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y, keep_prob:1.})
+        loss, accuracy = sess.run([cost, accuracy_op], feed_dict={x: batch_x, y: batch_y, keep_prob:1.})
         total_loss     += (loss * len(batch_x))
         total_accuracy += (accuracy * len(batch_x))
     return total_loss / num_examples, total_accuracy / num_examples
@@ -142,7 +142,7 @@ with tf.Session() as sess:
             '''
             # Calculate batch loss and accuracy
             loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y, keep_prob: 1.})
-            valid_acc = sess.run(accuracy, feed_dict={
+            valid_acc = sess.run(accuracy_op, feed_dict={
                 x: X_validation[:TEST_VALID_SIZE],
                 y: y_validation[:TEST_VALID_SIZE],
                 keep_prob: 1.})
@@ -170,7 +170,7 @@ with tf.Session() as sess:
 
     '''
     # Calculate Test Accuracy
-    test_acc = sess.run(accuracy, feed_dict={
+    test_acc = sess.run(accuracy_op, feed_dict={
         x: mnist.test.images[:TEST_VALID_SIZE],
         y: mnist.test.labels[:TEST_VALID_SIZE],
         keep_prob: 1.})
