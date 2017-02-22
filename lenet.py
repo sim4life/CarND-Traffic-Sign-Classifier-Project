@@ -2,6 +2,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data", one_hot=True, reshape=False)
 
 import tensorflow as tf
+from tensorflow.contrib.layers import flatten
 
 # Parameters
 LEARNING_RATE = 0.00001
@@ -49,7 +50,8 @@ def conv_net(x, weights, biases, dropout):
     conv2 = maxpool2d(conv2, k=2)
 
     # Fully connected layer - 7*7*64 to 1024
-    fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
+    # fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
+    fc1 = flatten(conv2)
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
     fc1 = tf.nn.dropout(fc1, dropout)
