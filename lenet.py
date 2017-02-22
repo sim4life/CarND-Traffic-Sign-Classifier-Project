@@ -50,20 +50,36 @@ TEST_VALID_SIZE = 512
 # Network Parameters
 n_classes = 10  # MNIST total classes (0-9 digits)
 dropout = 0.75  # Dropout, probability to keep units
+mu = 0
+sigma = 0.1
 
+# Store conv_net layers weight & bias
+weights_cnet = {
+    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 32), mean = mu, stddev = sigma)),
+    'wc2': tf.Variable(tf.truncated_normal(shape=(1, 1, 32, 64), mean = mu, stddev = sigma)),
+    'wd1': tf.Variable(tf.truncated_normal(shape=(7*7*64, 1024), mean = mu, stddev = sigma)),
+    'out': tf.Variable(tf.truncated_normal(shape=(1024, n_classes), mean = mu, stddev = sigma))}
 
-# Store layers weight & bias
-weights = {
-    'wc1': tf.Variable(tf.random_normal([5, 5, 1, 32])),
-    'wc2': tf.Variable(tf.random_normal([1, 1, 32, 64])),
-    'wd1': tf.Variable(tf.random_normal([7*7*64, 1024])),
-    'out': tf.Variable(tf.random_normal([1024, n_classes]))}
+biases_cnet = {
+    'bc1': tf.Variable(tf.random_normal([32])), # tf.zeros(32)
+    'bc2': tf.Variable(tf.random_normal([64])), # tf.zeros(64)
+    'bd1': tf.Variable(tf.random_normal([1024])), # tf.zeros(1024)
+    'out': tf.Variable(tf.random_normal([n_classes]))} # tf.zeros(n_classes)
 
-biases = {
-    'bc1': tf.Variable(tf.random_normal([32])),
-    'bc2': tf.Variable(tf.random_normal([64])),
-    'bd1': tf.Variable(tf.random_normal([1024])),
-    'out': tf.Variable(tf.random_normal([n_classes]))}
+# Store LeNet layers weight & bias
+weights_lenet = {
+    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean = mu, stddev = sigma)),
+    'wc2': tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma)),
+    'wd1': tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma)),
+    'wd2': tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma)),
+    'out': tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = mu, stddev = sigma))}
+
+biases_lenet = {
+    'bc1': tf.Variable(tf.random_normal([6])), # tf.zeros(6)
+    'bc2': tf.Variable(tf.random_normal([16])), # tf.zeros(16)
+    'bd1': tf.Variable(tf.random_normal([120])), # tf.zeros(1024)
+    'bd2': tf.Variable(tf.random_normal([84])), # tf.zeros(84)
+    'out': tf.Variable(tf.random_normal([n_classes]))} # tf.zeros(n_classes)
 
 
 def conv2d(x, W, b, strides=1):
@@ -99,6 +115,44 @@ def conv_net(x, weights, biases, dropout):
     out = tf.add(tf.matmul(fc1, weights['out']), biases['out'])
     return out
 
+from tensorflow.contrib.layers import flatten
+
+def LeNet(x, weights, biases, dropout):
+
+    # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
+    # Layer 1 - 32*32*1 to 28*28*6 to 14*14*6
+    conv1 = conv2d(x, weights['wc1'], biases['bc1'])
+    # Activation.
+    conv1   = tf.nn.relu(conv1)
+    # Pooling
+    conv1 = maxpool2d(conv1, k=2)
+
+    # Layer 2: Convolutional. Input = 14*14*6. Output = 5x5x16.
+    # Layer 2 - 14*14*6 to 10*10*6 to 5*5*6
+    conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
+    # Activation.
+    conv2   = tf.nn.relu(conv2)
+    # Pooling
+    conv2 = maxpool2d(conv2, k=2)
+
+    # Flatten. Input = 5x5x16. Output = 400.
+    fc0   = flatten(conv2)
+
+    # Layer 3: Fully Connected. Input = 400. Output = 120.
+    fc1 = tf.add(tf.matmul(fc0, weights['wd1']), biases['bd1'])
+    fc1 = tf.nn.relu(fc1)
+    fc1 = tf.nn.dropout(fc1, dropout)
+
+    # Layer 4: Fully Connected. Input = 120. Output = 84.
+    fc2 = tf.add(tf.matmul(fc1, weights['wd2']), biases['bd2'])
+    fc2 = tf.nn.relu(fc2)
+    fc2 = tf.nn.dropout(fc2, dropout)
+
+    # Layer 5: Fully Connected. Input = 84. Output = 10.
+    logits = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
+
+    return logits
+
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, 32, 32, 1])
 # y = tf.placeholder(tf.float32, [None, n_classes])
@@ -107,7 +161,8 @@ one_hot_y = tf.one_hot(y, n_classes)
 keep_prob = tf.placeholder(tf.float32)
 
 # Model
-logits = conv_net(x, weights, biases, keep_prob)
+# logits = conv_net(x, weights_cnet, biases_cnet, keep_prob)
+logits = LeNet(x, weights_lenet, biases_lenet, keep_prob)
 
 # Define loss (cost) and optimizer (training_operation)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
