@@ -169,7 +169,7 @@ cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, lab
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
 # model_save_dir = 'TRAINED_model_sgd'
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
-model_save_dir = 'TRAINED_model_adam'
+model_save_dir = 'TRAINED_model_adam2'
 training_operation = optimizer.minimize(cost)
 
 # Accuracy (accuracy_operation)
