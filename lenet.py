@@ -1,17 +1,42 @@
 from tensorflow.examples.tutorials.mnist import input_data
-mnist = input_data.read_data_sets("MNIST_data", one_hot=True, reshape=False)
+mnist = input_data.read_data_sets("MNIST_data", reshape=False)
+X_train, y_train           = mnist.train.images, mnist.train.labels
+X_validation, y_validation = mnist.validation.images, mnist.validation.labels
+X_test, y_test             = mnist.test.images, mnist.test.labels
+
+assert(len(X_train) == len(y_train))
+assert(len(X_validation) == len(y_validation))
+assert(len(X_test) == len(y_test))
+
+print()
+print("Image Shape: {}".format(X_train[0].shape))
+print()
+print("Training Set:   {} samples".format(len(X_train)))
+print("Validation Set: {} samples".format(len(X_validation)))
+print("Test Set:       {} samples".format(len(X_test)))
+'''
+# Pad images with 0s
+X_train = tf.pad(X_train, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
+X_validation = tf.pad(X_validation, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
+X_test = tf.pad(X_test, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
+
+print("Updated Image Shape: {}".format(X_train[0].shape))
+'''
+from sklearn.utils import shuffle
+
+X_train, y_train = shuffle(X_train, y_train)
 
 import tensorflow as tf
 from tensorflow.contrib.layers import flatten
 
 # Parameters
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.01
 EPOCHS = 10
 BATCH_SIZE = 128
 
 # Number of samples to calculate validation and accuracy
 # Decrease this if you're running out of memory to calculate accuracy
-test_valid_size = 256
+TEST_VALID_SIZE = 512
 
 # Network Parameters
 n_classes = 10  # MNIST total classes (0-9 digits)
@@ -62,36 +87,38 @@ def conv_net(x, weights, biases, dropout):
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, 28, 28, 1])
-y = tf.placeholder(tf.float32, [None, n_classes])
+# y = tf.placeholder(tf.float32, [None, n_classes])
+y = tf.placeholder(tf.int32, [None])
+one_hot_y = tf.one_hot(y, n_classes)
 keep_prob = tf.placeholder(tf.float32)
 
 # Model
 logits = conv_net(x, weights, biases, keep_prob)
 
-# Define loss and optimizer - cost is also loss_op, optimizer is also train_op
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y))
-opt = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
-# opt = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
-optimizer = opt.minimize(cost)
+# Define loss (cost) and optimizer (training_operation)
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+# optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+training_operation = optimizer.minimize(cost)
 
-# Accuracy - accuracy is also accuracy_op
-correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(y, 1))
+# Accuracy (accuracy_operation)
+correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-def eval_data(dataset):
-    """
-    Given a dataset as input returns the loss and accuracy.
-    """
-    steps_per_epoch = dataset.num_examples // BATCH_SIZE
-    num_examples = steps_per_epoch * BATCH_SIZE
-    total_acc, total_loss = 0, 0
+saver = tf.train.Saver()
+
+def evaluate_data(X_data, y_data):
+    num_examples = len(X_data)
+    total_loss, total_accuracy = 0, 0
     sess = tf.get_default_session()
-    for step in range(steps_per_epoch):
-        batch_x, batch_y = dataset.next_batch(BATCH_SIZE)
-        loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y, keep_prob:1.})
-        total_acc += (acc * batch_x.shape[0])
-        total_loss += (loss * batch_x.shape[0])
-    return total_loss/num_examples, total_acc/num_examples
+    for offset in range(0, num_examples, BATCH_SIZE):
+        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
+        # cost is loss_operation
+        loss, accuracy = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y, keep_prob:1.})
+        total_loss     += (loss * len(batch_x))
+        total_accuracy += (accuracy * len(batch_x))
+    return total_loss / num_examples, total_accuracy / num_examples
+
 
 # Initializing the variables
 init = tf.global_variables_initializer()
@@ -99,37 +126,53 @@ init = tf.global_variables_initializer()
 # Launch the graph
 with tf.Session() as sess:
     sess.run(init)
-    steps_per_epoch = mnist.train.num_examples // BATCH_SIZE
+    num_examples = len(X_train)
+
+    # steps_per_epoch = num_examples // BATCH_SIZE
+    print("Training...")
+    print()
 
     for epoch in range(EPOCHS):
-        for batch in range(steps_per_epoch):
-            batch_x, batch_y = mnist.train.next_batch(BATCH_SIZE)
-            sess.run(optimizer, feed_dict={x: batch_x, y: batch_y, keep_prob: dropout})
+        X_train, y_train = shuffle(X_train, y_train) # to ensure training isn't biased by the order of images
+        for offset in range(0, num_examples, BATCH_SIZE):
+            end = offset + BATCH_SIZE
+            batch_x, batch_y = X_train[offset:end], y_train[offset:end]
+            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: dropout})
 
+            '''
             # Calculate batch loss and accuracy
             loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y, keep_prob: 1.})
             valid_acc = sess.run(accuracy, feed_dict={
-                x: mnist.validation.images[:test_valid_size],
-                y: mnist.validation.labels[:test_valid_size],
+                x: X_validation[:TEST_VALID_SIZE],
+                y: y_validation[:TEST_VALID_SIZE],
                 keep_prob: 1.})
 
-            # print('Epoch {:>2}, Batch {:>3} - Loss: {:>10.4f} Validation Accuracy: {:.6f}'.format(
-            #     epoch + 1,
-            #     batch + 1,
-            #     loss,
-            #     valid_acc))
+            print('Epoch {:>2}, Batch {:>3} - Loss: {:>10.4f} Validation Accuracy: {:.6f}'.format(
+                epoch + 1,
+                batch + 1,
+                loss,
+                valid_acc))
+
 
         val_loss, val_acc = eval_data(mnist.validation)
         print("EPOCH {} ...".format(epoch+1))
         print("Validation loss = {:.3f}".format(val_loss))
         print("Validation accuracy = {:.3f}".format(val_acc))
         print()
+        '''
+
+        validation_loss, validation_accuracy = evaluate_data(X_validation, y_validation)
+        print("EPOCH {} ...".format(epoch+1))
+        print("Validation Loss = {:.3f}".format(validation_loss))
+        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print()
 
 
+    '''
     # Calculate Test Accuracy
     test_acc = sess.run(accuracy, feed_dict={
-        x: mnist.test.images[:test_valid_size],
-        y: mnist.test.labels[:test_valid_size],
+        x: mnist.test.images[:TEST_VALID_SIZE],
+        y: mnist.test.labels[:TEST_VALID_SIZE],
         keep_prob: 1.})
     print('Testing Accuracy with prob: {}'.format(test_acc))
 
@@ -137,3 +180,15 @@ with tf.Session() as sess:
     test_loss, test_acc = eval_data(mnist.test)
     print("Eval_func Test loss = {:.3f}".format(test_loss))
     print("Eval_func Test accuracy = {:.3f}".format(test_acc))
+    '''
+
+    saver.save(sess, 'TRAINED_model/lenet_wip')
+    print("Model saved")
+
+def evaluate_test_data():
+    with tf.Session() as sess:
+        saver.restore(sess, tf.train.latest_checkpoint('TRAINED_model/'))
+
+        test_loss, test_accuracy = evaluate_data(X_test, y_test)
+        print("Test Loss = {:.3f}".format(test_loss))
+        print("Test Accuracy = {:.3f}".format(test_accuracy))
