@@ -1,4 +1,9 @@
+import os
+import tensorflow as tf
+from sklearn.utils import shuffle
+from tensorflow.contrib.layers import flatten
 from tensorflow.examples.tutorials.mnist import input_data
+
 mnist = input_data.read_data_sets("MNIST_data", reshape=False)
 X_train, y_train           = mnist.train.images, mnist.train.labels
 X_validation, y_validation = mnist.validation.images, mnist.validation.labels
@@ -22,12 +27,11 @@ X_test = tf.pad(X_test, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
 
 print("Updated Image Shape: {}".format(X_train[0].shape))
 '''
-from sklearn.utils import shuffle
+
 
 X_train, y_train = shuffle(X_train, y_train)
 
-import tensorflow as tf
-from tensorflow.contrib.layers import flatten
+
 
 # Parameters
 LEARNING_RATE = 0.01
