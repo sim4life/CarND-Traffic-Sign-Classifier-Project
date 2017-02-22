@@ -225,7 +225,7 @@ with tf.Session() as sess:
 
 def evaluate_test_data():
     with tf.Session() as sess:
-        saver.restore(sess, tf.train.latest_checkpoint('TRAINED_model/'))
+        saver.restore(sess, tf.train.latest_checkpoint(model_save_dir+'/'))
 
         test_loss, test_accuracy = evaluate_data(X_test, y_test)
         print("Test Loss = {:.3f}".format(test_loss))
