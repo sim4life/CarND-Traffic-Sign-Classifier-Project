@@ -53,20 +53,17 @@ dropout = 0.75  # Dropout, probability to keep units
 mu = 0
 sigma = 0.1
 
-
-# Store LeNet layers weight & bias
+# Store conv_net layers weight & bias
 weights = {
-    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean = mu, stddev = sigma)),
-    'wc2': tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma)),
-    'wd1': tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma)),
-    'wd2': tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma)),
-    'out': tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = mu, stddev = sigma))}
+    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 32), mean = mu, stddev = sigma)),
+    'wc2': tf.Variable(tf.truncated_normal(shape=(1, 1, 32, 64), mean = mu, stddev = sigma)),
+    'wd1': tf.Variable(tf.truncated_normal(shape=(7*7*64, 1024), mean = mu, stddev = sigma)),
+    'out': tf.Variable(tf.truncated_normal(shape=(1024, n_classes), mean = mu, stddev = sigma))}
 
 biases = {
-    'bc1': tf.Variable(tf.random_normal([6])), # tf.zeros(6)
-    'bc2': tf.Variable(tf.random_normal([16])), # tf.zeros(16)
-    'bd1': tf.Variable(tf.random_normal([120])), # tf.zeros(120)
-    'bd2': tf.Variable(tf.random_normal([84])), # tf.zeros(84)
+    'bc1': tf.Variable(tf.random_normal([32])), # tf.zeros(32)
+    'bc2': tf.Variable(tf.random_normal([64])), # tf.zeros(64)
+    'bd1': tf.Variable(tf.random_normal([1024])), # tf.zeros(1024)
     'out': tf.Variable(tf.random_normal([n_classes]))} # tf.zeros(n_classes)
 
 
@@ -78,42 +75,31 @@ def conv2d(x, W, b, strides=1):
 def maxpool2d(x, k=2):
     return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1], padding='VALID')
 
-
-def LeNet(x, weights, biases, dropout):
-
-    # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
-    # Layer 1 - 32*32*1 to 28*28*6 to 14*14*6
+def conv_net(x, weights, biases, dropout):
+    # Layer 1 - 28*28*1 to 14*14*32
+    # conv1 = conv2d(x, weights['wc1'], biases['bc1'])
+    # Layer 1 - 32*32*1 to 14*14*32
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
-    # Activation.
-    conv1   = tf.nn.relu(conv1)
-    # Pooling
+    # print("conv1 shape is: {}".format(conv1.get_shape()))
     conv1 = maxpool2d(conv1, k=2)
-
-    # Layer 2: Convolutional. Input = 14*14*6. Output = 5x5x16.
-    # Layer 2 - 14*14*6 to 10*10*6 to 5*5*6
+    # print("mac_pool conv1 shape is: {}".format(conv1.get_shape()))
+    # Layer 2 - 14*14*32 to 7*7*64
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
-    # Activation.
-    conv2   = tf.nn.relu(conv2)
-    # Pooling
+    # print("conv2 shape is: {}".format(conv2.get_shape()))
     conv2 = maxpool2d(conv2, k=2)
 
-    # Flatten. Input = 5x5x16. Output = 400.
-    fc0   = flatten(conv2)
-
-    # Layer 3: Fully Connected. Input = 400. Output = 120.
-    fc1 = tf.add(tf.matmul(fc0, weights['wd1']), biases['bd1'])
+    # Fully connected layer - 7*7*64 to 1024
+    # fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
+    # print("max_pool conv2 shape is: {}".format(conv2.get_shape()))
+    fc1 = flatten(conv2)
+    fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
     fc1 = tf.nn.dropout(fc1, dropout)
 
-    # Layer 4: Fully Connected. Input = 120. Output = 84.
-    fc2 = tf.add(tf.matmul(fc1, weights['wd2']), biases['bd2'])
-    fc2 = tf.nn.relu(fc2)
-    fc2 = tf.nn.dropout(fc2, dropout)
+    # Output Layer - class prediction - 1024 to 10
+    out = tf.add(tf.matmul(fc1, weights['out']), biases['out'])
+    return out
 
-    # Layer 5: Fully Connected. Input = 84. Output = 10.
-    logits = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
-
-    return logits
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, 32, 32, 1])
@@ -123,14 +109,14 @@ one_hot_y = tf.one_hot(y, n_classes)
 keep_prob = tf.placeholder(tf.float32)
 
 # Model
-logits = LeNet(x, weights, biases, keep_prob)
+logits = conv_net(x, weights, biases, keep_prob)
 
 # Define loss (cost) and optimizer (training_operation)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
 # optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
-# model_save_dir = 'LeNet_model_sgd'
+# model_save_dir = 'Conv_Net_model_sgd'
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
-model_save_dir = 'LeNet_model_adam'
+model_save_dir = 'Conv_Net_model_adam'
 training_operation = optimizer.minimize(cost)
 
 # Accuracy (accuracy_operation)
@@ -158,7 +144,6 @@ def evaluate_data(X_data, y_data):
 
 # Initializing the variables
 init = tf.global_variables_initializer()
-
 
 # Launch the graph
 with tf.Session() as sess:
