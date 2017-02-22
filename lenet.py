@@ -105,6 +105,10 @@ training_operation = optimizer.minimize(cost)
 correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_op = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
+model_save_dir = 'TRAINED_model'
+if not os.path.exists(model_save_dir):
+    os.makedirs(model_save_dir)
+
 saver = tf.train.Saver()
 
 def evaluate_data(X_data, y_data):
@@ -182,7 +186,7 @@ with tf.Session() as sess:
     print("Eval_func Test accuracy = {:.3f}".format(test_acc))
     '''
 
-    saver.save(sess, 'TRAINED_model/lenet_wip')
+    saver.save(sess, model_save_dir+'/lenet_wip')
     print("Model saved")
 
 def evaluate_test_data():
