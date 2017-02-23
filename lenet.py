@@ -139,7 +139,7 @@ def preprocess(imgs):
     print("a3 normalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
     new_imgs = equalize(new_imgs)
     print("a3 equalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
-    return rgb2gray(new_imgs)
+    return new_imgs
 
 # preprocess the images
 X_train_processed = preprocess(X_train)
