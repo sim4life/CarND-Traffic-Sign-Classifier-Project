@@ -107,26 +107,6 @@ biases = {
     'out': tf.Variable(tf.random_normal([n_classes]))} # tf.zeros(n_classes)
 
 
-def decay_learning_rate_new(size):
-    divisor = 1000
-    first_lim = 7
-    sec_lim = 10
-    if size > first_lim:
-        # divisor = 1000*size
-        # divisor = math.e**size
-        # divisor = 10*(size**math.e)
-        divisor = 10*(size**math.e)
-        if size > sec_lim:
-            step = (size - sec_lim) // 2
-            if (size - sec_lim % 2) is not 0:
-                divisor = math.pow(5, step) * 10*(size**math.e)
-    # if size > 12:
-        # divisor = math.e**(size-1)
-        # divisor = 10*(size**math.e)
-    # print("learning_rate is: {:.6f}".format(1/divisor))
-    return 1/divisor
-    # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
-
 def decay_learning_rate(size):
     divisor = 1000
     if size > 8:
@@ -137,9 +117,9 @@ def decay_learning_rate(size):
     if size > 12:
         # divisor = math.e**(size-1)
         divisor = 10*(size**math.e)
-    if size > 14:
+    # if size > 14:
         # divisor = math.e**(size-1)
-        divisor = 20*(size**math.e)
+        # divisor = 20*(size**math.e)
     return 1/divisor
 
 def conv2d(x, W, b, strides=1):
