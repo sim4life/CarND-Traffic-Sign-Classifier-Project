@@ -108,7 +108,7 @@ biases = {
 
 
 def decay_learning_rate(size):
-    return 1/(5*(size**math.e)) # return 1/(2*(math.e**size)) 
+    return 1/(5*(size**math.e)) # return 1/(2*(math.e**size))
 def conv2d(x, W, b, strides=1):
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
     x = tf.nn.bias_add(x, b)
@@ -167,10 +167,10 @@ logits = LeNet(x, weights, biases, keep_prob)
 
 # Define loss (cost) and optimizer (training_operation)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=decaying_learning_rate)
-model_save_dir = 'LeNet_model_sgd'
-# optimizer = tf.train.AdamOptimizer(learning_rate=decaying_learning_rate)
-# model_save_dir = 'LeNet_model_adam'
+# optimizer = tf.train.GradientDescentOptimizer(learning_rate=decaying_learning_rate)
+# model_save_dir = 'LeNet_model_sgd'
+optimizer = tf.train.AdamOptimizer(learning_rate=decaying_learning_rate)
+model_save_dir = 'LeNet_model_adam'
 training_operation = optimizer.minimize(cost)
 
 # Accuracy (accuracy_operation)
