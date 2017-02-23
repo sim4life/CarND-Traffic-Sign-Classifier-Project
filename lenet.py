@@ -77,7 +77,7 @@ print("Number of classes =", n_classes)
 X_train, y_train = shuffle(X_train, y_train)
 
 # Parameters
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.01
 EPOCHS = 10
 BATCH_SIZE = 128
 
