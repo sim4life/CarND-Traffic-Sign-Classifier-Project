@@ -129,15 +129,15 @@ def decay_learning_rate_new(size):
 
 def decay_learning_rate(size):
     divisor = 1000
-        if size > 8:
-            # divisor = 1000*size
-            # divisor = math.e**size
-            # divisor = 10*(size**math.e)
-            divisor = size**math.e
-        if size > 12:
-            # divisor = math.e**(size-1)
-            divisor = 10*(size**math.e)
-        return 1/divisor
+    if size > 8:
+        # divisor = 1000*size
+        # divisor = math.e**size
+        # divisor = 10*(size**math.e)
+        divisor = size**math.e
+    if size > 12:
+        # divisor = math.e**(size-1)
+        divisor = 10*(size**math.e)
+    return 1/divisor
 
 def conv2d(x, W, b, strides=1):
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
