@@ -74,10 +74,12 @@ print("Number of testing examples =", n_test)
 print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
+# from skimage.color import rgb2gray
 
 def rgb2gray(imgs):
     # convert to grayscale
     return np.mean(imgs, axis=3, keepdims=True)
+    # return rgb2gray(imgs)
 
 def normalize(imgs):
     # normalize to [-1, 1] range
@@ -97,8 +99,8 @@ def equalize(imgs):
     return new_imgs
 
 def preprocess(imgs):
-    new_imgs = equalize(imgs)
-    new_imgs = rgb2gray(new_imgs)
+    # new_imgs = equalize(imgs)
+    new_imgs = rgb2gray(imgs)
 
     return new_imgs
 
@@ -130,7 +132,7 @@ sigma = 0.1
 
 # Store LeNet layers weight & bias
 weights = {
-    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma)),
+    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean = mu, stddev = sigma)),
     'wc2': tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma)),
     'wd1': tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma)),
     'wd2': tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma)),
@@ -202,7 +204,7 @@ def LeNet(x, weights, biases, dropout):
     return logits
 
 # tf Graph input
-x = tf.placeholder(tf.float32, [None, 32, 32, 3])
+x = tf.placeholder(tf.float32, [None, 32, 32, 1])
 # y = tf.placeholder(tf.float32, [None, n_classes])
 y = tf.placeholder(tf.int32, [None])
 one_hot_y = tf.one_hot(y, n_classes)
