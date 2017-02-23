@@ -78,7 +78,7 @@ X_train, y_train = shuffle(X_train, y_train)
 
 # Parameters
 # LEARNING_RATE = 0.001
-EPOCHS = 10
+EPOCHS = 15
 BATCH_SIZE = 128
 
 # Number of samples to calculate validation and accuracy
@@ -110,8 +110,8 @@ biases = {
 
 def decay_learning_rate(size):
     divisor = 1000
-    if size > 7:
-        divisor = 1000*size
+    if size > 9:
+        divisor = 10000 # 1000*size
     return 1/divisor
     # return 1/(1000*size) # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
 def conv2d(x, W, b, strides=1):
