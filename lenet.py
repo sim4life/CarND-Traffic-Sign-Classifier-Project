@@ -3,6 +3,7 @@ import math
 import numpy as np
 import tensorflow as tf
 from sklearn.utils import shuffle
+from skimage import exposure
 from tensorflow.contrib.layers import flatten
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -42,7 +43,7 @@ print("Updated Image Shape: {}".format(X_train[0].shape))
 import pickle
 
 training_file = 'traffic-signs-data/train.p'
-validation_file= 'traffic-signs-data/valid.p' # TODO: use sklearn traintestsplit fn
+validation_file= 'traffic-signs-data/valid.p'
 testing_file = 'traffic-signs-data/test.p'
 
 with open(training_file, mode='rb') as f:
@@ -74,7 +75,42 @@ print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
 
-X_train, y_train = shuffle(X_train, y_train)
+def rgb2gray(imgs):
+    # convert to grayscale
+    return np.mean(imgs, axis=3, keepdims=True)
+
+def normalize(imgs):
+    # normalize to [-1, 1] range
+    return imgs / (255 / 2.) - 1
+
+def denormalize(imgs):
+    # denormalize to [0, 255] range
+    return ((imgs + 1) * (255 / 2.)).astype(np.uint8)
+
+def equalize(imgs):
+    # equalize contrast
+    new_imgs = np.empty(imgs.shape, dtype=float)
+    for i, img in enumerate(imgs):
+        equalized_img = exposure.equalize_adapthist(img) * 2 - 1
+        new_imgs[i] = equalized_img
+
+    return new_imgs
+
+def preprocess(imgs):
+    new_imgs = equalize(imgs)
+    new_imgs = rgb2gray(new_imgs)
+
+    return new_imgs
+
+# preprocess the images
+X_train_processed = preprocess(X_train)
+# X_valid_processed = preprocess(X_valid)
+X_valid = preprocess(X_valid)
+X_test_processed = preprocess(X_test)
+
+X_train, y_train = shuffle(X_train_processed, y_train)
+
+print("New Image data shape =", X_train[0].shape)
 
 # Parameters
 # LEARNING_RATE = 0.001
