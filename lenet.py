@@ -113,7 +113,7 @@ def decay_learning_rate(size):
     if size > 6:
         divisor = 10000
     d = 1/divisor
-    return 1/(1000*size) # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
+    return 1/(100*size) # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
 def conv2d(x, W, b, strides=1):
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
     x = tf.nn.bias_add(x, b)
