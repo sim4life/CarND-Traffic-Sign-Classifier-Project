@@ -164,10 +164,10 @@ logits = LeNet(x, weights, biases, keep_prob)
 
 # Define loss (cost) and optimizer (training_operation)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
-# optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
-# model_save_dir = 'LeNet_model_sgd'
-optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
-model_save_dir = 'LeNet_model_adam'
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+model_save_dir = 'LeNet_model_sgd'
+# optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+# model_save_dir = 'LeNet_model_adam'
 training_operation = optimizer.minimize(cost)
 
 # Accuracy (accuracy_operation)
@@ -256,7 +256,7 @@ with tf.Session() as sess:
     print("Eval_func Test accuracy = {:.3f}".format(test_acc))
     '''
 
-    saver.save(sess, model_save_dir+'/lenet_wip')
+    saver.save(sess, model_save_dir+'/lenet')
     print("Model saved")
 
 
