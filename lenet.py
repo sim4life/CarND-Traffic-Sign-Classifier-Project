@@ -128,12 +128,12 @@ def preprocess(imgs):
         # new_imgs[i] = equalized_img
 
     print("b4 np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(imgs), np.min(imgs), imgs.mean()))
-    new_imgs = equalize(imgs)
-    print("a3 equalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
+    # new_imgs = equalize(imgs)
+    # print("a3 equalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
     new_imgs = normalize(new_imgs)
     print("a3 normalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
-    # new_imgs = rgb2gray(new_imgs)
-    # print("a3 rgb2gray np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
+    new_imgs = rgb2gray(new_imgs)
+    print("a3 rgb2gray np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
     return rgb2gray(new_imgs)
 
 # preprocess the images
