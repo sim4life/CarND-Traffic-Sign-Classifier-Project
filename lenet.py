@@ -148,7 +148,7 @@ def LeNet(x, weights, biases, dropout):
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Activation.
     conv2   = tf.nn.relu(conv2)
-    conv2 = tf.nn.dropout(conv2, dropout)
+    # conv2 = tf.nn.dropout(conv2, dropout)
     # Pooling
     conv2 = maxpool2d(conv2, k=2)
 
