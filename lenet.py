@@ -112,8 +112,8 @@ def decay_learning_rate(size):
     divisor = 1000
     if size > 8:
         # divisor = 1000*size
-        divisor = math.e**size
-        # divisor = 10*(size**math.e)
+        # divisor = math.e**size
+        divisor = 10*(size**math.e)
         # divisor = size**math.e
     return 1/divisor
     # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
