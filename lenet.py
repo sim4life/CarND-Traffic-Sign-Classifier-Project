@@ -123,7 +123,7 @@ def decay_learning_rate(size):
     # if size > 12:
         # divisor = math.e**(size-1)
         # divisor = 10*(size**math.e)
-    print("learning_rate is: {:.5f}".format(1/divisor))
+    # print("learning_rate is: {:.6f}".format(1/divisor))
     return 1/divisor
     # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
 def conv2d(x, W, b, strides=1):
