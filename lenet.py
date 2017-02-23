@@ -77,7 +77,7 @@ print("Number of classes =", n_classes)
 X_train, y_train = shuffle(X_train, y_train)
 
 # Parameters
-LEARNING_RATE = 0.001
+# LEARNING_RATE = 0.001
 EPOCHS = 10
 BATCH_SIZE = 128
 
@@ -108,8 +108,8 @@ biases = {
     'out': tf.Variable(tf.random_normal([n_classes]))} # tf.zeros(n_classes)
 
 
-# def decay_learning_rate(size):
-    # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
+def decay_learning_rate(size):
+    return 1/(100*size) # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
 def conv2d(x, W, b, strides=1):
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
     x = tf.nn.bias_add(x, b)
@@ -161,16 +161,16 @@ x = tf.placeholder(tf.float32, [None, 32, 32, 3])
 y = tf.placeholder(tf.int32, [None])
 one_hot_y = tf.one_hot(y, n_classes)
 keep_prob = tf.placeholder(tf.float32)
-# decaying_learning_rate = tf.placeholder(tf.float32) # 0.001
+decaying_learning_rate = tf.placeholder(tf.float32) # 0.001
 
 # Model
 logits = LeNet(x, weights, biases, keep_prob)
 
 # Define loss (cost) and optimizer (training_operation)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y))
-# optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+# optimizer = tf.train.GradientDescentOptimizer(learning_rate=decaying_learning_rate)
 # model_save_dir = 'LeNet_model_sgd'
-optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+optimizer = tf.train.AdamOptimizer(learning_rate=decaying_learning_rate)
 model_save_dir = 'LeNet_model_adam'
 training_operation = optimizer.minimize(cost)
 
@@ -215,7 +215,7 @@ with tf.Session() as sess:
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: dropout})
+            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: dropout, decaying_learning_rate: decay_learning_rate(epoch+1)})
 
             '''
             # Calculate batch loss and accuracy
