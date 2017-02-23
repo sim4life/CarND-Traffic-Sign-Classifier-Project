@@ -86,7 +86,7 @@ BATCH_SIZE = 128
 TEST_VALID_SIZE = 512
 
 # Network Parameters
-dropout = 0.80  # Dropout, probability to keep units
+dropout = 0.75  # Dropout, probability to keep units
 mu = 0
 sigma = 0.1
 
