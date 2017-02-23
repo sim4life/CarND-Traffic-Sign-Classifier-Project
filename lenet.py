@@ -86,7 +86,7 @@ BATCH_SIZE = 128
 TEST_VALID_SIZE = 512
 
 # Network Parameters
-dropout = 0.85  # Dropout, probability to keep units
+dropout = 0.75  # Dropout, probability to keep units
 mu = 0
 sigma = 0.1
 
@@ -142,7 +142,7 @@ def LeNet(x, weights, biases, dropout):
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     # Activation.
     conv1   = tf.nn.relu(conv1)
-    conv1 = tf.nn.dropout(conv1, dropout)
+    # conv1 = tf.nn.dropout(conv1, dropout)
     # Pooling
     conv1 = maxpool2d(conv1, k=2)
 
@@ -151,7 +151,7 @@ def LeNet(x, weights, biases, dropout):
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Activation.
     conv2   = tf.nn.relu(conv2)
-    conv2 = tf.nn.dropout(conv2, (dropout*0.9))
+    # conv2 = tf.nn.dropout(conv2, (dropout*0.9))
     # Pooling
     conv2 = maxpool2d(conv2, k=2)
 
@@ -161,12 +161,12 @@ def LeNet(x, weights, biases, dropout):
     # Layer 3: Fully Connected. Input = 400. Output = 120.
     fc1 = tf.add(tf.matmul(fc0, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
-    fc1 = tf.nn.dropout(fc1, (dropout*0.8))
+    fc1 = tf.nn.dropout(fc1, dropout)
 
     # Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2 = tf.add(tf.matmul(fc1, weights['wd2']), biases['bd2'])
     fc2 = tf.nn.relu(fc2)
-    fc2 = tf.nn.dropout(fc2, (dropout*0.7))
+    fc2 = tf.nn.dropout(fc2, (dropout*0.9))
 
     # Layer 5: Fully Connected. Input = 84. Output = 10.
     logits = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
