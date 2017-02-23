@@ -108,7 +108,7 @@ biases = {
 
 
 def decay_learning_rate(size):
-    return 1/(2*(size**math.e)) # return 1/(math.e**size) 
+    return 1/(2*(math.e**size)) # return 1/(2*(size**math.e))
 def conv2d(x, W, b, strides=1):
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
     x = tf.nn.bias_add(x, b)
