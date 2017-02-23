@@ -5,6 +5,7 @@ from sklearn.utils import shuffle
 from tensorflow.contrib.layers import flatten
 from tensorflow.examples.tutorials.mnist import input_data
 
+'''
 mnist = input_data.read_data_sets("MNIST_data", reshape=False)
 X_train, y_train           = mnist.train.images, mnist.train.labels
 X_validation, y_validation = mnist.validation.images, mnist.validation.labels
@@ -28,14 +29,50 @@ X_validation = np.pad(X_validation, ((0,0),(2,2),(2,2),(0,0)), 'constant')
 X_test       = np.pad(X_test, ((0,0),(2,2),(2,2),(0,0)), 'constant')
 
 print("Updated Image Shape: {}".format(X_train[0].shape))
-'''
-# Pad images with 0s
-X_train = tf.pad(X_train, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
-X_validation = tf.pad(X_validation, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
-X_test = tf.pad(X_test, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
 
-print("Updated Image Shape: {}".format(X_train.get_shape()))
+# Pad images with 0s
+# X_train = tf.pad(X_train, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
+# X_validation = tf.pad(X_validation, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
+# X_test = tf.pad(X_test, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
+#
+# print("Updated Image Shape: {}".format(X_train.get_shape()))
 '''
+# Load pickled data
+import pickle
+
+training_file = 'traffic-signs-data/train.p'
+validation_file= 'traffic-signs-data/valid.p' # TODO: use sklearn traintestsplit fn
+testing_file = 'traffic-signs-data/test.p'
+
+with open(training_file, mode='rb') as f:
+    train = pickle.load(f)
+with open(validation_file, mode='rb') as f:
+    valid = pickle.load(f)
+with open(testing_file, mode='rb') as f:
+    test = pickle.load(f)
+
+X_train, y_train = train['features'], train['labels']
+X_valid, y_valid = valid['features'], valid['labels']
+X_test, y_test = test['features'], test['labels']
+
+# Number of training examples
+n_train = len(X_train)
+
+# Number of testing examples.
+n_test = len(X_test)
+
+# The shape of an traffic sign image
+image_shape = X_train[0].shape
+
+# Unique classes/labels in the dataset.
+n_classes = max(y_train)+1
+
+print("Number of training examples =", n_train)
+print("Number of testing examples =", n_test)
+print("Image data shape =", image_shape)
+print("Number of classes =", n_classes)
+
+
 X_train, y_train = shuffle(X_train, y_train)
 
 # Parameters
@@ -48,7 +85,7 @@ BATCH_SIZE = 128
 TEST_VALID_SIZE = 512
 
 # Network Parameters
-n_classes = 10  # MNIST total classes (0-9 digits)
+# n_classes = 10  # MNIST total classes (0-9 digits)
 dropout = 0.75  # Dropout, probability to keep units
 mu = 0
 sigma = 0.1
@@ -56,7 +93,7 @@ sigma = 0.1
 
 # Store LeNet layers weight & bias
 weights = {
-    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean = mu, stddev = sigma)),
+    'wc1': tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma)),
     'wc2': tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma)),
     'wd1': tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma)),
     'wd2': tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma)),
@@ -116,7 +153,7 @@ def LeNet(x, weights, biases, dropout):
     return logits
 
 # tf Graph input
-x = tf.placeholder(tf.float32, [None, 32, 32, 1])
+x = tf.placeholder(tf.float32, [None, 32, 32, 3])
 # y = tf.placeholder(tf.float32, [None, n_classes])
 y = tf.placeholder(tf.int32, [None])
 one_hot_y = tf.one_hot(y, n_classes)
@@ -198,7 +235,7 @@ with tf.Session() as sess:
         print()
         '''
 
-        validation_loss, validation_accuracy = evaluate_data(X_validation, y_validation)
+        validation_loss, validation_accuracy = evaluate_data(X_valid, y_valid)
         print("EPOCH {} ...".format(epoch+1))
         print("Validation Loss = {:.3f}".format(validation_loss))
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
