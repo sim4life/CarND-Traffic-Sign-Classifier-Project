@@ -7,38 +7,6 @@ from skimage import exposure
 from tensorflow.contrib.layers import flatten
 from tensorflow.examples.tutorials.mnist import input_data
 
-'''
-mnist = input_data.read_data_sets("MNIST_data", reshape=False)
-X_train, y_train           = mnist.train.images, mnist.train.labels
-X_validation, y_validation = mnist.validation.images, mnist.validation.labels
-X_test, y_test             = mnist.test.images, mnist.test.labels
-
-assert(len(X_train) == len(y_train))
-assert(len(X_validation) == len(y_validation))
-assert(len(X_test) == len(y_test))
-
-print()
-print("Image Shape: {}".format(X_train[0].shape))
-print()
-print("Training Set:   {} samples".format(len(X_train)))
-print("Validation Set: {} samples".format(len(X_validation)))
-print("Test Set:       {} samples".format(len(X_test)))
-
-
-# Pad images with 0s
-X_train      = np.pad(X_train, ((0,0),(2,2),(2,2),(0,0)), 'constant')
-X_validation = np.pad(X_validation, ((0,0),(2,2),(2,2),(0,0)), 'constant')
-X_test       = np.pad(X_test, ((0,0),(2,2),(2,2),(0,0)), 'constant')
-
-print("Updated Image Shape: {}".format(X_train[0].shape))
-
-# Pad images with 0s
-# X_train = tf.pad(X_train, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
-# X_validation = tf.pad(X_validation, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
-# X_test = tf.pad(X_test, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
-#
-# print("Updated Image Shape: {}".format(X_train.get_shape()))
-'''
 # Load pickled data
 import pickle
 
@@ -74,7 +42,6 @@ print("Number of testing examples =", n_test)
 print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
-# from skimage.color import rgb2gray
 from skimage.exposure import rescale_intensity
 
 def rgb2gray(imgs):
@@ -90,9 +57,7 @@ def equalize(imgs):
     # equalize contrast
     new_imgs = np.empty(imgs.shape, dtype=float)
     for i, img in enumerate(imgs):
-        equalized_img = exposure.equalize_adapthist(img) * 2 - 1
-        new_imgs[i] = equalized_img
-        # new_imgs[i] = rescale_intensity(img)
+        new_imgs[i] = rescale_intensity(img)
 
     return new_imgs
 
@@ -121,8 +86,7 @@ BATCH_SIZE = 128
 TEST_VALID_SIZE = 512
 
 # Network Parameters
-# n_classes = 10  # MNIST total classes (0-9 digits)
-dropout = 0.75  # Dropout, probability to keep units
+dropout = 0.85  # Dropout, probability to keep units
 mu = 0
 sigma = 0.1
 
@@ -193,7 +157,7 @@ def LeNet(x, weights, biases, dropout):
     # Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2 = tf.add(tf.matmul(fc1, weights['wd2']), biases['bd2'])
     fc2 = tf.nn.relu(fc2)
-    fc2 = tf.nn.dropout(fc2, dropout)
+    fc2 = tf.nn.dropout(fc2, (dropout*0.8))
 
     # Layer 5: Fully Connected. Input = 84. Output = 10.
     logits = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
