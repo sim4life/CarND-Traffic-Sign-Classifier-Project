@@ -117,10 +117,9 @@ def decay_learning_rate(size):
         # divisor = 10*(size**math.e)
         divisor = 10*(size**math.e)
         if size > sec_lim:
-
-        step = (size - sec_lim) // 2
-        if (size - sec_lim % 2) is not 0:
-            divisor = math.pow(5, step) * 10*(size**math.e)
+            step = (size - sec_lim) // 2
+            if (size - sec_lim % 2) is not 0:
+                divisor = math.pow(5, step) * 10*(size**math.e)
     # if size > 12:
         # divisor = math.e**(size-1)
         # divisor = 10*(size**math.e)
