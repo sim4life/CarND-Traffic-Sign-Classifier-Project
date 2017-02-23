@@ -162,7 +162,7 @@ def LeNet(x, weights, biases, dropout):
     # Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2 = tf.add(tf.matmul(fc1, weights['wd2']), biases['bd2'])
     fc2 = tf.nn.relu(fc2)
-    fc2 = tf.nn.dropout(fc2, (dropout*0.9))
+    fc2 = tf.nn.dropout(fc2, dropout)
 
     # Layer 5: Fully Connected. Input = 84. Output = 10.
     logits = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
