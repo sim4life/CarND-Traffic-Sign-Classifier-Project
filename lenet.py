@@ -75,6 +75,7 @@ print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
 # from skimage.color import rgb2gray
+from skimage.exposure import rescale_intensity
 
 def rgb2gray(imgs):
     # convert to grayscale
@@ -83,7 +84,9 @@ def rgb2gray(imgs):
 
 def normalize(imgs):
     # normalize to [-1, 1] range
-    return imgs / (255 / 2.) - 1
+    # return imgs / (255 / 2.) - 1
+    # normalize to [0, 1] range
+    return (Ximgs / 255.).astype(np.float32)
 
 def denormalize(imgs):
     # denormalize to [0, 255] range
@@ -98,17 +101,37 @@ def equalize(imgs):
 
     return new_imgs
 
+# TODO: preprocess valid and test
 def preprocess(imgs):
     # new_imgs = equalize(imgs)
-    new_imgs = rgb2gray(imgs)
+    # new_imgs = rgb2gray(imgs)
+    # print("imgs shape is:{}".format(imgs.shape))
+    # print("3rd imgs shape is:{}".format(imgs.shape[...,:3]))
+    # print("2nd imgs shape is:{}".format(imgs.shape[:3]+(1,)))
+    new_imgs = np.empty(imgs.shape, dtype=float)
+    # new_imgs = np.empty(imgs.shape[:3]+(1,), dtype=float)
+    # print("imgs.shape:{}".format(imgs[0].shape))
+    # print("new_imgs.shape:{}".format(new_imgs[0].shape))
+    for i, img in enumerate(imgs):
+        # print("b4 intensity img shape:{}".format(img.shape))
+        # img = rescale_intensity(img)
+        # print("a3 intensity img shape:{}".format(img.shape))
+        # img2 = rgb2gray(img)
+        # print("a3 rgb2gray img shape:{}".format(img2.shape))
+        # print("new_imgs[i] shape:{}".format(new_imgs[i].shape))
+        # new_imgs[i] = img2
+        new_imgs[i] = rescale_intensity(img)
+        # equalized_img = exposure.equalize_adapthist(img) * 2 - 1
+        # new_imgs[i] = equalized_img
 
-    return new_imgs
+
+    return rgb2gray(new_imgs)
 
 # preprocess the images
 X_train_processed = preprocess(X_train)
 # X_valid_processed = preprocess(X_valid)
 X_valid = preprocess(X_valid)
-X_test_processed = preprocess(X_test)
+X_test = preprocess(X_test)
 
 X_train, y_train = shuffle(X_train_processed, y_train)
 
@@ -154,7 +177,7 @@ def decay_learning_rate(size):
         # divisor = 10*(size**math.e)
         divisor = size**math.e
     if size > 12:
-        # divisor = math.e**size
+        # divisor = math.e**(size-1)
         divisor = 10*(size**math.e)
     return 1/divisor
     # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
