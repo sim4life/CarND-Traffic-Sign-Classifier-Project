@@ -109,14 +109,18 @@ biases = {
 
 def decay_learning_rate(size):
     divisor = 1000
-    if size > 8:
+    first_lim = 7
+    if size > first_lim:
         # divisor = 1000*size
         # divisor = math.e**size
         # divisor = 10*(size**math.e)
         divisor = size**math.e
-    if size > 12:
+        step = (size - first_lim) // 2
+        if (size - first_lim % 2) is not 0:
+            divisor = math.pow(10, step) * size**math.e
+    # if size > 12:
         # divisor = math.e**(size-1)
-        divisor = 10*(size**math.e)
+        # divisor = 10*(size**math.e)
     return 1/divisor
     # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
 def conv2d(x, W, b, strides=1):
@@ -135,6 +139,7 @@ def LeNet(x, weights, biases, dropout):
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     # Activation.
     conv1   = tf.nn.relu(conv1)
+    conv1 = tf.nn.dropout(conv1, dropout)
     # Pooling
     conv1 = maxpool2d(conv1, k=2)
 
@@ -143,6 +148,7 @@ def LeNet(x, weights, biases, dropout):
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Activation.
     conv2   = tf.nn.relu(conv2)
+    conv2 = tf.nn.dropout(conv2, (dropout*0.9))
     # Pooling
     conv2 = maxpool2d(conv2, k=2)
 
@@ -152,12 +158,12 @@ def LeNet(x, weights, biases, dropout):
     # Layer 3: Fully Connected. Input = 400. Output = 120.
     fc1 = tf.add(tf.matmul(fc0, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
-    fc1 = tf.nn.dropout(fc1, dropout)
+    fc1 = tf.nn.dropout(fc1, (dropout*0.8))
 
     # Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2 = tf.add(tf.matmul(fc1, weights['wd2']), biases['bd2'])
     fc2 = tf.nn.relu(fc2)
-    fc2 = tf.nn.dropout(fc2, dropout)
+    fc2 = tf.nn.dropout(fc2, (dropout*0.7))
 
     # Layer 5: Fully Connected. Input = 84. Output = 10.
     logits = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
@@ -166,7 +172,6 @@ def LeNet(x, weights, biases, dropout):
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, 32, 32, 1])
-# y = tf.placeholder(tf.float32, [None, n_classes])
 y = tf.placeholder(tf.int32, [None])
 one_hot_y = tf.one_hot(y, n_classes)
 keep_prob = tf.placeholder(tf.float32)
