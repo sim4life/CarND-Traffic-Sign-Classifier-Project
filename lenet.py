@@ -110,7 +110,7 @@ biases = {
 
 def decay_learning_rate(size):
     divisor = 1000
-    if size > 6:
+    if size > 7:
         divisor = 10000
     return 1/divisor
     # return 1/(1000*size) # return 1/(10*(size**math.e)) # return 1/(2*(math.e**size))
