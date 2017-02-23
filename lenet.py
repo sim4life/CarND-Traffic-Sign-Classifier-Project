@@ -80,69 +80,25 @@ from skimage.exposure import rescale_intensity
 def rgb2gray(imgs):
     # convert to grayscale
     return np.mean(imgs, axis=3, keepdims=True)
-    # return rgb2gray(imgs)
 
 def normalize(imgs):
     # normalize to [-1, 1] range
-    # return imgs / (255 / 2.) - 1
-    # normalize to [0, 1] range
-    # return (Ximgs / 255.).astype(np.float32)
     imgs_norm = (imgs - imgs.mean()) / (np.max(imgs) - np.min(imgs))
     return imgs_norm
-
-def denormalize(imgs):
-    # denormalize to [0, 255] range
-    return ((imgs + 1) * (255 / 2.)).astype(np.uint8)
 
 def equalize(imgs):
     # equalize contrast
     new_imgs = np.empty(imgs.shape, dtype=float)
     for i, img in enumerate(imgs):
-        # equalized_img = exposure.equalize_adapthist(img) * 2 - 1
-        # new_imgs[i] = equalized_img
-        new_imgs[i] = rescale_intensity(img)
+        equalized_img = exposure.equalize_adapthist(img) * 2 - 1
+        new_imgs[i] = equalized_img
+        # new_imgs[i] = rescale_intensity(img)
 
     return new_imgs
 
-# TODO: preprocess valid and test
 def preprocess(imgs):
-    # new_imgs = equalize(imgs)
-    # new_imgs = rgb2gray(imgs)
-    # print("imgs shape is:{}".format(imgs.shape))
-    # print("3rd imgs shape is:{}".format(imgs.shape[...,:3]))
-    # print("2nd imgs shape is:{}".format(imgs.shape[:3]+(1,)))
-    # -- new_imgs = np.empty(imgs.shape, dtype=float)
-    # new_imgs = np.empty(imgs.shape[:3]+(1,), dtype=float)
-    # print("imgs.shape:{}".format(imgs[0].shape))
-    # print("new_imgs.shape:{}".format(new_imgs[0].shape))
-    # -- for i, img in enumerate(imgs):
-        # print("b4 intensity img shape:{}".format(img.shape))
-        # img = rescale_intensity(img)
-        # print("a3 intensity img shape:{}".format(img.shape))
-        # img2 = rgb2gray(img)
-        # print("a3 rgb2gray img shape:{}".format(img2.shape))
-        # print("new_imgs[i] shape:{}".format(new_imgs[i].shape))
-        # new_imgs[i] = img2
-        # -- new_imgs[i] = rescale_intensity(img)
-        # equalized_img = exposure.equalize_adapthist(img) * 2 - 1
-        # new_imgs[i] = equalized_img
-
-    print("b4 np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(imgs), np.min(imgs), imgs.mean()))
-    # new_imgs = equalize(imgs)
-    # print("a3 equalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
-    # new_imgs = normalize(new_imgs)
-    # new_imgs = normalize(imgs)
-    # print("a3 normalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
-    # new_imgs = normalize(imgs)
-    # print("a3 normalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
     new_imgs = equalize(imgs)
-    print("a3 equalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
     new_imgs = rgb2gray(new_imgs)
-    print("a3 rgb2gray np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
-    # new_imgs = normalize(new_imgs)
-    # print("a3 normalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
-    # new_imgs = equalize(new_imgs)
-    # print("a3 equalize np.max / np.min::imgs.mean:{} / {}::{}".format(np.max(new_imgs), np.min(new_imgs), new_imgs.mean()))
     return new_imgs
 
 # preprocess the images
