@@ -308,7 +308,7 @@ with tf.Session() as sess:
     print("Eval_func Test accuracy = {:.3f}".format(test_acc))
     '''
 
-    saver.save(sess, model_save_dir+'/lenet')
+    saver.save(sess, model_save_dir+'/lenet_new')
     print("Model saved")
 
 
@@ -321,4 +321,4 @@ def evaluate_test_data():
         print("Test Accuracy = {:.3f}".format(test_accuracy))
 
 # train_model()
-evaluate_test_data()
+# evaluate_test_data()
