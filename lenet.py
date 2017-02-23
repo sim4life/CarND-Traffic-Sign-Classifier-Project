@@ -4,6 +4,9 @@ import numpy as np
 import tensorflow as tf
 from sklearn.utils import shuffle
 from skimage import exposure
+from skimage.transform import rotate
+from skimage.transform import warp
+from skimage.transform import ProjectiveTransform
 from tensorflow.contrib.layers import flatten
 from tensorflow.examples.tutorials.mnist import input_data
 
