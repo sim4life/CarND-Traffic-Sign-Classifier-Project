@@ -146,7 +146,7 @@ def LeNet(x, weights, biases, dropout):
     conv1 = maxpool2d(conv1, k=2)
 
     # Layer 2: Convolutional. Input = 14*14*6. Output = 5x5x16.
-    # Layer 2 - 14*14*6 to 10*10*6 to 5*5*6
+    # Layer 2 - 14*14*6 to 10*10*16 to 5*5*16
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Activation.
     conv2   = tf.nn.relu(conv2)
@@ -167,7 +167,7 @@ def LeNet(x, weights, biases, dropout):
     fc2 = tf.nn.relu(fc2)
     fc2 = tf.nn.dropout(fc2, dropout)
 
-    # Layer 5: Fully Connected. Input = 84. Output = 10.
+    # Layer 5: Fully Connected. Input = 84. Output = 43.
     logits = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
 
     return logits
