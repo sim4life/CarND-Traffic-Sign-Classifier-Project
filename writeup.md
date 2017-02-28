@@ -124,9 +124,9 @@ I used _Adam Optimizer_ as it was giving far better accuracy than Stochastic Gra
 The code for calculating the accuracy of the model is located in the 15th and 16th cell of the Ipython notebook.
 
 My final model results were:  
-* training set accuracy of 99.5%  
-* validation set accuracy of 93.4%  
-* test set accuracy of 90.6%
+* training set accuracy of 99.6%  
+* validation set accuracy of 94.7%  
+* test set accuracy of 92.4%
 
 I tried two architectures: first as a ConvNet with Conv5x5 --> Conv1x1 layers, and two fully connected layers; second as a classic LeNet with adjustments. I found out the LeNet performed better training without overfitting and under-fitting. I used other techniques to spice up the training accuracy like adding dropout after every convolution layer and fully connected layer, decay in dropout retain rate, and various combinations of preprocessing the input images.  
 I tuned hyper paramers: epochs, batch size, and learning rate decay function. I found out that an adjusted decaying learning rate function with 15 epochs and a batch size of 128 was optimal with high validation accuracy.  
@@ -153,7 +153,7 @@ Here are the results of the prediction:
 
 | Image			        |     Prediction	        					|
 |:---------------------:|:---------------------------------------------:|
-| Bumpy Road      		| General Caution   									|
+| Bumpy Road      		| Bicycles crossing   									|
 | Wild Animals crossing     			| Wild Animals crossing 										|
 | Yield					| Yield											|
 | No entry	      		| No entry					 				|
@@ -168,7 +168,7 @@ The code for making predictions on my final model is located in the 21st and 22n
 
 | Probability         	|     Prediction	        					|
 |:---------------------:|:---------------------------------------------:|
-| .35         			| General Caution   									|
+| .48         			| Bicycles crossing   									|
 | .99     				| Wild Animals crossing 										|
 | .99					| Yield											|
 | .97	      			| No entry					 				|
@@ -178,6 +178,6 @@ For the first image, the top five soft max probabilities were:
 
 ![alt text][image9]
 
-The trained network is pretty confused and the correct prediction is not even in top 5 probabilities. This can be improved with adding random noise and augmenting input data.
+The trained network is pretty confused and the correct prediction is 5th in the top 5 probabilities with almost 3% probability. The correct prediction and the current top prediction have similar features adding to the confusion. This can be improved with adding random noise and augmenting input data.
 
 For the rest of the images the model is quite sure about the signs (with probabilities higher than of 0.95), and correctly identified the signs.
